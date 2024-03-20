@@ -1,15 +1,23 @@
-import requests
 import os
 import json
 import time
+import requests
 
-url_base = "https://swfs.kubbo.city/dcr/hof_furni/icons"
+url_base = "https://habbox.fr/nitro/bundled/furniture/icons/"
 extension = ".png"
 wait_time = 0.5
 
-with open("FurnitureData.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
+def es_imagen_valida(respuesta):
+    try:
+        if not respuesta.headers.get('content-type').startswith('image'):
+            return False  # La respuesta no es una imagen válida
+        return True
+    except Exception as e:
+        print(f"Error al verificar la imagen: {e}")
+        return False
 
+with open("Data2.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
 
     for items in data["roomitemtypes"]["furnitype"]:
         classname = items["classname"]
@@ -20,6 +28,10 @@ with open("FurnitureData.json", "r", encoding="utf-8") as f:
             url = url_base + "/" + classname + "_icon" + extension
             print("Descargando imagen de la clase:", classname)
             response = requests.get(url)
-            with open(filename, "wb") as f:
-                f.write(response.content)
+            if es_imagen_valida(response):
+                with open(filename, "wb") as f:
+                    f.write(response.content)
+                print("Imagen descargada correctamente.")
+            else:
+                print("La respuesta no es una imagen válida.")
             time.sleep(wait_time)
